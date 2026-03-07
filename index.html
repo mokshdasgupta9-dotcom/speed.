@@ -2,812 +2,641 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Ground">
 <title>Ground</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0e0c0a;
-    --surface: #161412;
-    --surface2: #1e1b18;
-    --border: #2a2520;
-    --text: #e8e0d5;
-    --muted: #7a6f65;
-    --accent: #c4824a;
-    --accent2: #8faa8b;
-    --danger: #c45a4a;
-    --warm: #d4b896;
-  }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#0e0c0a;--sur:#161412;--sur2:#1e1b18;--bor:#2a2520;--txt:#e8e0d5;--mut:#7a6f65;--acc:#c4824a;--grn:#8faa8b;--red:#c45a4a;--warm:#d4b896;--blu:#6a8faa;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:'DM Mono',monospace;}
+#app{height:100%;display:flex;flex-direction:column;overflow:hidden;}
+.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;padding-bottom:72px;}
+.screen.on{display:flex;}
+.hdr{padding:48px 24px 20px;border-bottom:1px solid var(--bor);flex-shrink:0;}
+.hdr-lbl{font-family:'Cormorant Garamond',serif;font-size:11px;font-weight:300;letter-spacing:.25em;text-transform:uppercase;color:var(--mut);}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+/* NAV — 4 tabs */
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--bor);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom,0px);}
+.nb{flex:1;padding:12px 2px 10px;background:none;border:none;cursor:pointer;color:var(--mut);font-size:8px;font-family:'DM Mono',monospace;letter-spacing:.08em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.nb.on{color:var(--acc);}
+.nb svg{width:17px;height:17px;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* SOUND */
+.sound-btn{position:fixed;top:16px;right:20px;background:var(--sur);border:1px solid var(--bor);border-radius:20px;padding:6px 12px;font-size:9px;letter-spacing:.1em;color:var(--mut);cursor:pointer;font-family:'DM Mono',monospace;z-index:60;display:flex;align-items:center;gap:6px;}
+.sound-btn.on{color:var(--grn);border-color:var(--grn);}
+.sound-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 
-  /* SCREENS */
-  .screen { display: none; min-height: 100vh; flex-direction: column; padding: 0 0 80px 0; }
-  .screen.active { display: flex; }
+/* HOME */
+.streak-hero{padding:36px 24px 32px;text-align:center;flex-shrink:0;}
+.s-lbl{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);margin-bottom:14px;}
+.s-num{font-family:'Cormorant Garamond',serif;font-size:88px;font-weight:300;line-height:1;color:var(--warm);}
+.s-unit{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-top:8px;}
+.s-since{font-size:10px;color:var(--mut);margin-top:6px;opacity:.6;}
+.cards{padding:0 20px;display:flex;flex-direction:column;gap:8px;}
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;color:var(--txt);text-align:left;}
+.card-l{display:flex;align-items:center;gap:12px;}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.card-title{font-size:11px;letter-spacing:.06em;}
+.card-sub{font-size:9px;color:var(--mut);margin-top:2px;}
+.arr{color:var(--mut);font-size:16px;}
+.reset-z{padding:24px 20px 0;}
+.reset-btn{width:100%;padding:13px;background:none;border:1px solid var(--bor);border-radius:4px;color:var(--red);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
 
-  /* NAV */
-  nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    display: flex;
-    z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .nav-btn {
-    flex: 1; padding: 14px 4px 12px;
-    background: none; border: none; cursor: pointer;
-    color: var(--muted); font-size: 9px; font-family: 'DM Mono', monospace;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    display: flex; flex-direction: column; align-items: center; gap: 5px;
-    transition: color 0.2s;
-  }
-  .nav-btn.active { color: var(--accent); }
-  .nav-btn svg { width: 18px; height: 18px; }
+/* INTERRUPT (merged urge + wake) */
+.int-hero{padding:28px 24px 20px;flex-shrink:0;}
+.int-headline{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;font-style:italic;color:var(--warm);margin-top:8px;line-height:1.2;}
+.int-sub{font-size:9px;color:var(--mut);margin-top:8px;line-height:1.7;letter-spacing:.04em;}
+.int-section-lbl{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--mut);padding:16px 24px 8px;flex-shrink:0;}
+.int-actions{padding:0 20px;display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
+.int-action-btn{padding:14px 18px;background:var(--sur);border:1px solid var(--bor);border-radius:4px;color:var(--txt);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%;}
+.int-action-icon{font-size:15px;flex-shrink:0;}
+.int-divider{height:1px;background:var(--bor);margin:16px 24px;}
+.urge-items{padding:0 20px;display:flex;flex-direction:column;gap:7px;}
+.uitem{background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:14px 16px;cursor:pointer;width:100%;text-align:left;}
+.uitem-t{font-size:11px;letter-spacing:.06em;color:var(--txt);margin-bottom:4px;}
+.uitem-b{font-size:9px;color:var(--mut);line-height:1.6;}
+.uitem.custom-add{border-style:dashed;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;}
+.uitem.custom-add span{font-size:10px;color:var(--mut);letter-spacing:.1em;}
 
-  /* HEADER */
-  .screen-header {
-    padding: 52px 24px 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .screen-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 11px; font-weight: 300;
-    letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--muted);
-  }
+/* ADD CUSTOM TRIGGER PANEL */
+#add-trigger-panel{position:fixed;inset:0;background:rgba(14,12,10,.95);z-index:250;display:none;align-items:flex-end;padding:24px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));}
+#add-trigger-panel.on{display:flex;}
+.atp-box{width:100%;background:var(--sur);border:1px solid var(--bor);border-radius:6px;padding:24px 20px;}
+.atp-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;font-weight:300;color:var(--warm);margin-bottom:6px;}
+.atp-sub{font-size:9px;color:var(--mut);margin-bottom:18px;line-height:1.6;}
+.atp-in{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:4px;padding:12px 14px;color:var(--txt);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;}
+.atp-note{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:4px;padding:12px 14px;color:var(--txt);font-family:'DM Mono',monospace;font-size:10px;outline:none;resize:none;margin-bottom:12px;line-height:1.6;}
+.atp-btns{display:flex;flex-direction:column;gap:8px;}
+.atp-save{padding:13px;background:none;border:1px solid var(--grn);border-radius:4px;color:var(--grn);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
+.atp-cancel{padding:13px;background:none;border:1px solid var(--bor);border-radius:4px;color:var(--mut);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
 
-  /* ===== HOME SCREEN ===== */
-  .streak-hero {
-    padding: 48px 24px 40px;
-    text-align: center;
-    flex-shrink: 0;
-  }
-  .streak-label {
-    font-size: 9px; letter-spacing: 0.3em;
-    text-transform: uppercase; color: var(--muted);
-    margin-bottom: 16px;
-  }
-  .streak-number {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 96px; font-weight: 300; line-height: 1;
-    color: var(--warm);
-    text-shadow: 0 0 60px rgba(196, 130, 74, 0.15);
-  }
-  .streak-unit {
-    font-size: 11px; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--muted);
-    margin-top: 10px;
-  }
-  .streak-since {
-    font-size: 10px; color: var(--muted);
-    margin-top: 8px; opacity: 0.6;
-  }
+/* DETAIL */
+#detail{position:fixed;inset:0;background:var(--bg);z-index:200;transform:translateY(100%);transition:transform .35s cubic-bezier(.16,1,.3,1);overflow-y:auto;padding:56px 24px 100px;}
+#detail.on{transform:translateY(0);}
+.d-close{position:fixed;top:16px;right:20px;background:var(--sur);border:1px solid var(--bor);border-radius:50%;width:34px;height:34px;color:var(--mut);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:201;line-height:1;}
+.d-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--warm);margin-bottom:22px;font-style:italic;}
+.d-step{border-left:1px solid var(--bor);padding:0 0 22px 18px;margin-left:4px;position:relative;}
+.d-step:last-child{border-left-color:transparent;}
+.d-step::before{content:'';position:absolute;left:-4px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--acc);border:1px solid var(--bg);}
+.d-step-lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin-bottom:5px;}
+.d-step-txt{font-size:11px;color:var(--mut);line-height:1.75;}
+.d-delete{margin-top:8px;width:100%;padding:12px;background:none;border:1px solid var(--bor);border-radius:4px;color:var(--red);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
 
-  .home-actions { padding: 0 24px; display: flex; flex-direction: column; gap: 10px; }
-  .action-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 18px 20px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between;
-    transition: border-color 0.2s, background 0.2s;
-    text-decoration: none; color: inherit;
-  }
-  .action-card:active { background: var(--surface2); border-color: var(--accent); }
-  .action-card-left { display: flex; align-items: center; gap: 14px; }
-  .action-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-  .action-dot.green { background: var(--accent2); }
-  .action-dot.red { background: var(--danger); }
-  .action-dot.blue { background: #6a8faa; }
-  .action-title { font-size: 12px; letter-spacing: 0.06em; }
-  .action-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .action-arrow { color: var(--muted); font-size: 16px; }
+/* BREATHE */
+.breathe-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.b-pills{padding:14px 20px 0;display:flex;gap:8px;flex-shrink:0;}
+.b-pill{padding:7px 13px;background:var(--sur);border:1px solid var(--bor);border-radius:20px;font-size:9px;letter-spacing:.1em;color:var(--mut);cursor:pointer;font-family:'DM Mono',monospace;}
+.b-pill.on{border-color:var(--grn);color:var(--grn);}
+.b-ring-wrap{margin-bottom:36px;}
+.b-ring{width:170px;height:170px;border-radius:50%;border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;position:relative;}
+.b-glow{position:absolute;inset:10px;border-radius:50%;background:radial-gradient(circle,rgba(143,170,139,.1) 0%,transparent 70%);animation:pulse 3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(.95)}50%{opacity:1;transform:scale(1.05)}}
+.b-ring.animating .b-glow{animation:none;}
+.b-inner{width:96px;height:96px;border-radius:50%;background:var(--sur2);border:1px solid var(--bor);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;position:relative;z-index:1;}
+.b-phase{font-family:'Cormorant Garamond',serif;font-size:12px;font-style:italic;color:var(--warm);}
+.b-count{font-size:20px;color:var(--txt);font-weight:300;}
+.b-desc{font-size:10px;color:var(--mut);text-align:center;margin-bottom:28px;line-height:1.75;max-width:250px;}
+.b-btn{padding:13px 36px;background:none;border:1px solid var(--grn);border-radius:2px;color:var(--grn);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;}
 
-  .reset-zone { padding: 32px 24px 0; }
-  .reset-btn {
-    width: 100%; padding: 14px;
-    background: none; border: 1px solid var(--border);
-    border-radius: 4px; color: var(--danger);
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    cursor: pointer; transition: border-color 0.2s, background 0.2s;
-  }
-  .reset-btn:active { background: rgba(196, 90, 74, 0.08); border-color: var(--danger); }
+/* MORE SCREEN */
+.more-list{padding:12px 20px;display:flex;flex-direction:column;gap:8px;}
 
-  /* ===== URGE SCREEN ===== */
-  .urge-header { padding: 52px 24px 20px; }
-  .urge-question {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px; font-weight: 300; font-style: italic;
-    line-height: 1.35; color: var(--warm); margin-top: 12px;
-  }
-  .urge-grid { padding: 20px 24px; display: flex; flex-direction: column; gap: 8px; }
-  .urge-item {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 4px; padding: 18px 20px; cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .urge-item:active { border-color: var(--accent); }
-  .urge-item-title { font-size: 11px; letter-spacing: 0.08em; color: var(--text); margin-bottom: 6px; }
-  .urge-item-body { font-size: 10px; color: var(--muted); line-height: 1.6; }
+/* BATHROOM TIMER */
+.bath-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
+.bath-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;font-style:italic;color:var(--warm);margin-bottom:8px;}
+.bath-sub{font-size:10px;color:var(--mut);margin-bottom:36px;line-height:1.7;max-width:260px;}
+.bath-ring{width:200px;height:200px;position:relative;margin-bottom:32px;}
+.bath-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.bath-ring-bg{fill:none;stroke:var(--bor);stroke-width:2;}
+.bath-ring-prog{fill:none;stroke:var(--acc);stroke-width:2;stroke-linecap:round;transition:stroke-dashoffset .5s linear;stroke-dasharray:565.48;}
+.bath-ring-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;}
+.bath-time{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:var(--warm);line-height:1;}
+.bath-time-lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);}
+.bath-controls{display:flex;gap:10px;}
+.bath-btn{padding:13px 28px;background:none;border:1px solid var(--acc);border-radius:2px;color:var(--acc);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;}
+.bath-btn.sec{border-color:var(--bor);color:var(--mut);}
+.bath-warning{font-size:10px;color:var(--red);margin-top:20px;letter-spacing:.08em;opacity:0;transition:opacity .3s;}
+.bath-warning.on{opacity:1;}
 
-  /* Detail panel */
-  .detail-panel {
-    position: fixed; inset: 0; background: var(--bg);
-    z-index: 200; transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow-y: auto; padding: 60px 24px 100px;
-    display: flex; flex-direction: column;
-  }
-  .detail-panel.open { transform: translateY(0); }
-  .detail-close {
-    position: fixed; top: 20px; right: 24px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 50%; width: 36px; height: 36px;
-    color: var(--muted); font-size: 18px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 201;
-  }
-  .detail-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px; font-weight: 300; color: var(--warm);
-    margin-bottom: 24px; font-style: italic;
-  }
-  .detail-step {
-    border-left: 1px solid var(--border);
-    padding: 0 0 24px 20px; margin-left: 4px;
-    position: relative;
-  }
-  .detail-step::before {
-    content: ''; position: absolute; left: -4px; top: 5px;
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent); border: 1px solid var(--bg);
-  }
-  .detail-step:last-child { border-left-color: transparent; }
-  .step-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
-  .step-text { font-size: 12px; color: var(--muted); line-height: 1.7; }
+/* TIME */
+.time-inner{padding:18px 20px;}
+.time-q{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;font-weight:300;color:var(--warm);margin-bottom:20px;line-height:1.4;}
+.time-tasks{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.tcard{background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;width:100%;}
+.tcard-name{font-size:10px;letter-spacing:.06em;color:var(--txt);}
+.tcard-dur{font-size:9px;color:var(--mut);margin-top:2px;}
+.tcard-go{font-size:12px;color:var(--acc);}
+.cust-lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:10px;}
+.cust-in{width:100%;background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:13px 14px;color:var(--txt);font-family:'DM Mono',monospace;font-size:11px;outline:none;margin-bottom:8px;}
+.cust-btn{width:100%;padding:13px;background:none;border:1px solid var(--acc);border-radius:4px;color:var(--acc);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
 
-  /* ===== BREATHE SCREEN ===== */
-  .breathe-container {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 24px;
-  }
-  .breathe-circle-wrap { position: relative; margin-bottom: 40px; }
-  .breathe-ring {
-    width: 180px; height: 180px; border-radius: 50%;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    position: relative; transition: transform 0.1s;
-  }
-  .breathe-ring::before {
-    content: ''; position: absolute; inset: 10px;
-    border-radius: 50%; background: radial-gradient(circle, rgba(143,170,139,0.12) 0%, transparent 70%);
-    animation: pulse-idle 3s ease-in-out infinite;
-  }
-  @keyframes pulse-idle { 0%,100%{opacity:0.4; transform:scale(0.95)} 50%{opacity:1; transform:scale(1.05)} }
-  .breathe-ring.animating::before { animation: none; }
-  .breathe-ring.inhale { animation: expand 4s ease-in-out forwards; }
-  .breathe-ring.hold { animation: none; }
-  .breathe-ring.exhale { animation: contract 6s ease-in-out forwards; }
-  @keyframes expand { to { transform: scale(1.4); border-color: var(--accent2); } }
-  @keyframes contract { from { transform: scale(1.4); border-color: var(--accent2); } to { transform: scale(1); border-color: var(--border); } }
-  .breathe-inner {
-    width: 100px; height: 100px; border-radius: 50%;
-    background: var(--surface2); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 2px;
-  }
-  .breathe-phase {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 14px; font-style: italic; color: var(--warm);
-  }
-  .breathe-count { font-size: 20px; color: var(--text); font-weight: 300; }
+/* LOG */
+.log-inner{padding:18px 20px;}
+.log-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;font-weight:300;color:var(--warm);margin-bottom:6px;line-height:1.3;}
+.log-sub{font-size:9px;color:var(--mut);margin-bottom:20px;line-height:1.6;}
+.log-form{background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:16px;margin-bottom:20px;}
+.log-row{margin-bottom:12px;}
+.log-row-lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:6px;}
+.log-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.log-pill{padding:6px 12px;background:var(--sur2);border:1px solid var(--bor);border-radius:20px;font-size:9px;color:var(--mut);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.06em;}
+.log-pill.on{border-color:var(--acc);color:var(--acc);}
+.log-outcome-pills{display:flex;gap:6px;}
+.log-outcome-pill{flex:1;padding:8px 4px;background:var(--sur2);border:1px solid var(--bor);border-radius:4px;font-size:9px;color:var(--mut);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.06em;text-align:center;}
+.log-outcome-pill.on-r{border-color:var(--red);color:var(--red);}
+.log-outcome-pill.on-g{border-color:var(--grn);color:var(--grn);}
+.log-textarea{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:4px;padding:11px 13px;color:var(--txt);font-family:'DM Mono',monospace;font-size:10px;outline:none;resize:none;line-height:1.6;}
+.log-save{width:100%;padding:13px;background:none;border:1px solid var(--grn);border-radius:4px;color:var(--grn);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;margin-top:4px;}
+.log-entries{display:flex;flex-direction:column;gap:8px;}
+.log-entry{background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:14px 16px;position:relative;}
+.log-entry-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.log-entry-date{font-size:9px;color:var(--mut);}
+.log-entry-outcome{font-size:9px;padding:3px 8px;border-radius:10px;border:1px solid;}
+.log-entry-outcome.r{color:var(--red);border-color:var(--red);}
+.log-entry-outcome.g{color:var(--grn);border-color:var(--grn);}
+.log-entry-triggers{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.log-entry-tag{font-size:8px;padding:2px 7px;background:var(--sur2);border-radius:10px;color:var(--mut);letter-spacing:.06em;}
+.log-entry-note{font-size:10px;color:var(--mut);line-height:1.6;}
+.log-entry-del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--bor);font-size:16px;cursor:pointer;padding:2px 6px;}
+.log-patterns{background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:14px 16px;margin-bottom:16px;}
+.log-patterns-title{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);margin-bottom:10px;}
+.log-pattern-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bor);font-size:10px;color:var(--mut);}
+.log-pattern-row:last-child{border-bottom:none;}
+.log-pattern-bar{height:3px;background:var(--acc);border-radius:2px;margin-top:3px;}
+.log-empty{font-size:10px;color:var(--mut);text-align:center;padding:32px 0;opacity:.6;}
 
-  .breathe-instruction {
-    font-size: 11px; letter-spacing: 0.1em; color: var(--muted);
-    text-align: center; margin-bottom: 32px; line-height: 1.6; max-width: 260px;
-  }
-  .breathe-btn {
-    padding: 14px 40px;
-    background: none; border: 1px solid var(--accent2);
-    border-radius: 2px; color: var(--accent2);
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.2em; text-transform: uppercase;
-    cursor: pointer; transition: background 0.2s;
-  }
-  .breathe-btn:active { background: rgba(143,170,139,0.1); }
-
-  .breathe-patterns { padding: 0 24px 24px; display: flex; gap: 8px; }
-  .pattern-pill {
-    padding: 8px 14px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 20px;
-    font-size: 9px; letter-spacing: 0.1em; color: var(--muted);
-    cursor: pointer; transition: border-color 0.2s, color 0.2s;
-  }
-  .pattern-pill.active { border-color: var(--accent2); color: var(--accent2); }
-
-  /* ===== WAKE UP SCREEN ===== */
-  .wake-hero {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 24px; text-align: center;
-  }
-  .wake-icon { font-size: 48px; margin-bottom: 24px; }
-  .wake-headline {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 32px; font-weight: 300; font-style: italic;
-    color: var(--warm); line-height: 1.2; margin-bottom: 16px;
-  }
-  .wake-sub { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; line-height: 1.7; max-width: 280px; margin-bottom: 40px; }
-  .wake-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; }
-  .wake-action-btn {
-    padding: 16px 20px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 4px;
-    color: var(--text); font-family: 'DM Mono', monospace;
-    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-    cursor: pointer; text-align: left;
-    display: flex; align-items: center; gap: 14px;
-    transition: border-color 0.2s;
-  }
-  .wake-action-btn:active { border-color: var(--accent); }
-  .wake-action-btn .w-icon { font-size: 16px; }
-  .wake-interrupts { padding: 0 24px 24px; }
-  .interrupt-title { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .interrupt-item { padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 11px; color: var(--muted); line-height: 1.6; }
-
-  /* ===== TIME SCREEN ===== */
-  .time-screen-inner { padding: 20px 24px; flex: 1; }
-  .time-prompt {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px; font-style: italic; font-weight: 300;
-    color: var(--warm); margin-bottom: 24px; line-height: 1.4;
-  }
-  .time-quick { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
-  .time-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 4px; padding: 16px 18px;
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; transition: border-color 0.2s;
-  }
-  .time-card:active { border-color: var(--accent); }
-  .time-card-left { display: flex; flex-direction: column; gap: 3px; }
-  .time-card-name { font-size: 11px; letter-spacing: 0.06em; }
-  .time-card-duration { font-size: 9px; color: var(--muted); }
-  .time-card-go { font-size: 10px; color: var(--accent); letter-spacing: 0.1em; }
-
-  .time-custom-label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .time-custom-input {
-    width: 100%; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 4px; padding: 14px 16px;
-    color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px;
-    outline: none; transition: border-color 0.2s; margin-bottom: 10px;
-  }
-  .time-custom-input:focus { border-color: var(--accent); }
-  .time-custom-btn {
-    width: 100%; padding: 14px;
-    background: none; border: 1px solid var(--accent);
-    border-radius: 4px; color: var(--accent);
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
-  }
-
-  /* Toast */
-  .toast {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 4px; padding: 12px 20px;
-    font-size: 10px; letter-spacing: 0.08em; color: var(--accent2);
-    z-index: 300; transition: transform 0.3s;
-    white-space: nowrap;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* Modal confirm */
-  .modal {
-    position: fixed; inset: 0; background: rgba(14,12,10,0.9);
-    z-index: 400; display: none; align-items: flex-end;
-    padding: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom));
-  }
-  .modal.open { display: flex; }
-  .modal-box {
-    width: 100%; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 6px; padding: 28px 24px;
-  }
-  .modal-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px; font-style: italic; font-weight: 300;
-    color: var(--text); margin-bottom: 10px;
-  }
-  .modal-sub { font-size: 10px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-  .modal-btns { display: flex; flex-direction: column; gap: 8px; }
-  .modal-confirm {
-    padding: 14px; background: none; border: 1px solid var(--danger);
-    border-radius: 4px; color: var(--danger);
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
-  }
-  .modal-cancel {
-    padding: 14px; background: none; border: 1px solid var(--border);
-    border-radius: 4px; color: var(--muted);
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer;
-  }
-
-  /* Grain texture */
-  body::after {
-    content: ''; position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.025; pointer-events: none; z-index: 500;
-  }
+/* MODAL */
+#modal{position:fixed;inset:0;background:rgba(14,12,10,.92);z-index:300;display:none;align-items:flex-end;padding:20px;}
+#modal.on{display:flex;}
+.modal-box{width:100%;background:var(--sur);border:1px solid var(--bor);border-radius:6px;padding:26px 22px;}
+.modal-t{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;font-weight:300;color:var(--txt);margin-bottom:8px;}
+.modal-s{font-size:10px;color:var(--mut);margin-bottom:22px;line-height:1.7;}
+.modal-btns{display:flex;flex-direction:column;gap:8px;}
+.modal-y{padding:13px;background:none;border:1px solid var(--red);border-radius:4px;color:var(--red);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
+.modal-n{padding:13px;background:none;border:1px solid var(--bor);border-radius:4px;color:var(--mut);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;}
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--sur2);border:1px solid var(--bor);border-radius:4px;padding:10px 18px;font-size:10px;color:var(--grn);z-index:400;transition:transform .3s;white-space:nowrap;max-width:88vw;text-align:center;letter-spacing:.06em;}
+#toast.on{transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
+<div id="app">
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+  <button class="sound-btn" id="sound-btn" onclick="toggleSound()"><div class="sound-dot"></div><span id="sound-lbl">sound off</span></button>
 
-<!-- RESET MODAL -->
-<div class="modal" id="resetModal">
-  <div class="modal-box">
-    <div class="modal-title">Start over?</div>
-    <div class="modal-sub">This will reset your streak to zero. It takes courage to be honest. You can begin again — right now.</div>
-    <div class="modal-btns">
-      <button class="modal-confirm" onclick="confirmReset()">Reset streak</button>
-      <button class="modal-cancel" onclick="closeModal()">Keep going</button>
+  <!-- HOME -->
+  <div class="screen on" id="s-home">
+    <div class="hdr"><div class="hdr-lbl">Ground</div></div>
+    <div class="streak-hero">
+      <div class="s-lbl">current streak</div>
+      <div class="s-num" id="streak-num">0</div>
+      <div class="s-unit">days</div>
+      <div class="s-since" id="streak-since"></div>
     </div>
+    <div class="cards">
+      <button class="card" onclick="go('interrupt')"><div class="card-l"><div class="dot" style="background:var(--red)"></div><div><div class="card-title">Interrupt</div><div class="card-sub">Urge tools + wake up</div></div></div><div class="arr">›</div></button>
+      <button class="card" onclick="go('breathe')"><div class="card-l"><div class="dot" style="background:var(--grn)"></div><div><div class="card-title">Breathe</div><div class="card-sub">Ground yourself now</div></div></div><div class="arr">›</div></button>
+      <button class="card" onclick="go('bath')"><div class="card-l"><div class="dot" style="background:var(--blu)"></div><div><div class="card-title">Bathroom timer</div><div class="card-sub">8 min — in and out</div></div></div><div class="arr">›</div></button>
+      <button class="card" onclick="go('more')"><div class="card-l"><div class="dot" style="background:var(--mut)"></div><div><div class="card-title">More</div><div class="card-sub">Time, log, patterns</div></div></div><div class="arr">›</div></button>
+    </div>
+    <div class="reset-z"><button class="reset-btn" onclick="document.getElementById('modal').classList.add('on')">I slipped — reset streak</button></div>
   </div>
-</div>
 
-<!-- DETAIL PANEL -->
-<div class="detail-panel" id="detailPanel">
-  <button class="detail-close" onclick="closeDetail()">×</button>
-  <div class="detail-title" id="detailTitle"></div>
-  <div id="detailSteps"></div>
-</div>
+  <!-- INTERRUPT (urge + wake merged) -->
+  <div class="screen" id="s-interrupt">
+    <div class="int-hero">
+      <div class="hdr-lbl">Interrupt</div>
+      <div class="int-headline">Right now.<br>Choose your move.</div>
+      <div class="int-sub">Urge hitting or already in it — pick what fits.</div>
+    </div>
 
-<!-- ===== HOME ===== -->
-<div class="screen active" id="screen-home">
-  <div class="screen-header">
-    <div class="screen-title">Ground</div>
-  </div>
-  <div class="streak-hero">
-    <div class="streak-label">current streak</div>
-    <div class="streak-number" id="streakDays">0</div>
-    <div class="streak-unit">days</div>
-    <div class="streak-since" id="streakSince"></div>
-  </div>
-  <div class="home-actions">
-    <div class="action-card" onclick="goTo('urge')">
-      <div class="action-card-left">
-        <div class="action-dot"></div>
-        <div>
-          <div class="action-title">Urge hitting</div>
-          <div class="action-sub">Tools for right now</div>
-        </div>
-      </div>
-      <div class="action-arrow">›</div>
+    <div class="int-section-lbl">immediate actions</div>
+    <div class="int-actions">
+      <button class="int-action-btn" onclick="showToast('Stand up. Move to a different room immediately.')"><span class="int-action-icon">🚪</span>Leave the room</button>
+      <button class="int-action-btn" onclick="showToast('Splash cold water on your face. Right now.')"><span class="int-action-icon">💧</span>Cold water on face</button>
+      <button class="int-action-btn" onclick="showToast('Say out loud: I am in control. I choose differently.')"><span class="int-action-icon">🗣️</span>Say it out loud</button>
+      <button class="int-action-btn" onclick="go('breathe')"><span class="int-action-icon">🌬️</span>Breathe through it</button>
+      <button class="int-action-btn" onclick="go('bath')"><span class="int-action-icon">⏱️</span>Start bathroom timer</button>
     </div>
-    <div class="action-card" onclick="goTo('breathe')">
-      <div class="action-card-left">
-        <div class="action-dot green"></div>
-        <div>
-          <div class="action-title">Breathe</div>
-          <div class="action-sub">Ground yourself</div>
-        </div>
-      </div>
-      <div class="action-arrow">›</div>
-    </div>
-    <div class="action-card" onclick="goTo('wake')">
-      <div class="action-card-left">
-        <div class="action-dot red"></div>
-        <div>
-          <div class="action-title">I'm already doing it</div>
-          <div class="action-sub">Interrupt, right now</div>
-        </div>
-      </div>
-      <div class="action-arrow">›</div>
-    </div>
-    <div class="action-card" onclick="goTo('time')">
-      <div class="action-card-left">
-        <div class="action-dot blue"></div>
-        <div>
-          <div class="action-title">Use this time</div>
-          <div class="action-sub">Put the energy somewhere</div>
-        </div>
-      </div>
-      <div class="action-arrow">›</div>
-    </div>
-  </div>
-  <div class="reset-zone">
-    <button class="reset-btn" onclick="openModal()">I slipped — reset streak</button>
-  </div>
-</div>
 
-<!-- ===== URGE ===== -->
-<div class="screen" id="screen-urge">
-  <div class="urge-header">
-    <div class="screen-title">Urge</div>
-    <div class="urge-question">What kind of urge is it?</div>
-  </div>
-  <div class="urge-grid">
-    <div class="urge-item" onclick="openDetail('routine', 'Routine / habit')">
-      <div class="urge-item-title">Routine / habit</div>
-      <div class="urge-item-body">It's just what I do at this time. Nothing triggered it.</div>
+    <div class="int-divider"></div>
+    <div class="int-section-lbl">what triggered it?</div>
+    <div class="urge-items" id="urge-items">
+      <button class="uitem" onclick="openDetail('routine')"><div class="uitem-t">Routine / habit</div><div class="uitem-b">It's just what I do at this time.</div></button>
+      <button class="uitem" onclick="openDetail('boredom')"><div class="uitem-t">Boredom</div><div class="uitem-b">Nothing to do. Mind wandering.</div></button>
+      <button class="uitem" onclick="openDetail('stress')"><div class="uitem-t">Stress / anxiety</div><div class="uitem-b">Something's weighing on me.</div></button>
+      <button class="uitem" onclick="openDetail('phone')"><div class="uitem-t">Phone / screen spiral</div><div class="uitem-b">Mindless scrolling led here.</div></button>
+      <button class="uitem" onclick="openDetail('bathroom')"><div class="uitem-t">Bathroom</div><div class="uitem-b">Shower or toilet — the usual place.</div></button>
+      <button class="uitem" onclick="openDetail('night')"><div class="uitem-t">Late night / tired</div><div class="uitem-b">Low willpower. Body wants relief.</div></button>
+      <button class="uitem" onclick="openDetail('alone')"><div class="uitem-t">Alone in room</div><div class="uitem-b">Solitude turned into the usual thing.</div></button>
     </div>
-    <div class="urge-item" onclick="openDetail('boredom', 'Boredom')">
-      <div class="urge-item-title">Boredom</div>
-      <div class="urge-item-body">Nothing to do. Mind wandering. Low stimulation.</div>
-    </div>
-    <div class="urge-item" onclick="openDetail('stress', 'Stress / anxiety')">
-      <div class="urge-item-title">Stress / anxiety</div>
-      <div class="urge-item-body">Something's weighing on me and I want relief.</div>
-    </div>
-    <div class="urge-item" onclick="openDetail('phone', 'Phone / screen spiral')">
-      <div class="urge-item-title">Phone / screen spiral</div>
-      <div class="urge-item-body">Mindless scrolling led here.</div>
-    </div>
-    <div class="urge-item" onclick="openDetail('night', 'Late night / tired')">
-      <div class="urge-item-title">Late night / tired</div>
-      <div class="urge-item-body">Low willpower. Body wants something, anything.</div>
-    </div>
-    <div class="urge-item" onclick="openDetail('alone', 'Alone in room')">
-      <div class="urge-item-title">Alone in room</div>
-      <div class="urge-item-body">Solitude turned into the usual thing.</div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== BREATHE ===== -->
-<div class="screen" id="screen-breathe">
-  <div class="screen-header">
-    <div class="screen-title">Breathe</div>
-  </div>
-  <div class="breathe-patterns" style="padding: 16px 24px 0;">
-    <div class="pattern-pill active" onclick="selectPattern(0, this)">4-7-8</div>
-    <div class="pattern-pill" onclick="selectPattern(1, this)">Box 4-4</div>
-    <div class="pattern-pill" onclick="selectPattern(2, this)">Calm 4-6</div>
-  </div>
-  <div class="breathe-container">
-    <div class="breathe-circle-wrap">
-      <div class="breathe-ring" id="breatheRing">
-        <div class="breathe-inner">
-          <div class="breathe-phase" id="breathePhase">ready</div>
-          <div class="breathe-count" id="breatheCount">—</div>
-        </div>
-      </div>
-    </div>
-    <div class="breathe-instruction" id="breatheInstruction">
-      Inhale 4 · Hold 7 · Exhale 8<br>Activates your parasympathetic system.<br>Reduces urge intensity within 2 minutes.
-    </div>
-    <button class="breathe-btn" id="breatheBtn" onclick="toggleBreathe()">Begin</button>
-  </div>
-</div>
-
-<!-- ===== WAKE ===== -->
-<div class="screen" id="screen-wake">
-  <div class="wake-hero">
-    <div class="wake-icon">⚡</div>
-    <div class="wake-headline">Stop.<br>Right now.</div>
-    <div class="wake-sub">You are not your impulse. The next 10 seconds matter more than the last 10 minutes. Choose one:</div>
-    <div class="wake-actions">
-      <button class="wake-action-btn" onclick="wakeAction('Stand up. Move to a different room immediately.')">
-        <span class="w-icon">🚪</span> Leave the room
-      </button>
-      <button class="wake-action-btn" onclick="wakeAction('Splash cold water on your face. Right now.')">
-        <span class="w-icon">💧</span> Cold water on face
-      </button>
-      <button class="wake-action-btn" onclick="wakeAction('Say out loud: I am in control. I choose differently.')">
-        <span class="w-icon">🗣️</span> Say it out loud
-      </button>
-      <button class="wake-action-btn" onclick="goTo('breathe')">
-        <span class="w-icon">🌬️</span> Breathe through it
+    <div style="padding:8px 20px 4px;">
+      <button class="uitem custom-add" onclick="openAddTrigger()">
+        <span style="font-size:14px;color:var(--mut)">+</span>
+        <span>add your own trigger</span>
       </button>
     </div>
   </div>
-  <div class="wake-interrupts">
-    <div class="interrupt-title">Pattern interrupts</div>
-    <div class="interrupt-item">Put your phone face-down across the room. Do 10 push-ups before you can pick it up.</div>
-    <div class="interrupt-item">Text someone — anyone — anything. The act of connecting rewires the moment.</div>
-    <div class="interrupt-item">Go outside. Even for 60 seconds. The environment shift breaks the loop.</div>
-    <div class="interrupt-item">Name five things you can see. Four you can touch. Three you can hear. You are here.</div>
-  </div>
-</div>
 
-<!-- ===== TIME ===== -->
-<div class="screen" id="screen-time">
-  <div class="screen-header">
-    <div class="screen-title">Use this time</div>
+  <!-- BREATHE -->
+  <div class="screen" id="s-breathe">
+    <div class="hdr"><div class="hdr-lbl">Breathe</div></div>
+    <div class="b-pills"><button class="b-pill on" onclick="selPat(0,this)">4-7-8</button><button class="b-pill" onclick="selPat(1,this)">Box 4-4</button><button class="b-pill" onclick="selPat(2,this)">Calm 4-6</button></div>
+    <div class="breathe-wrap">
+      <div class="b-ring-wrap">
+        <div class="b-ring" id="b-ring">
+          <div class="b-glow"></div>
+          <div class="b-inner"><div class="b-phase" id="b-phase">ready</div><div class="b-count" id="b-count">—</div></div>
+        </div>
+      </div>
+      <div class="b-desc" id="b-desc">Inhale 4 · Hold 7 · Exhale 8<br>Activates your parasympathetic system.<br>Reduces urge intensity within 2 minutes.</div>
+      <button class="b-btn" id="b-btn" onclick="toggleBreathe()">Begin</button>
+    </div>
   </div>
-  <div class="time-screen-inner">
-    <div class="time-prompt">You have energy. Where does it go?</div>
-    <div class="time-quick">
-      <div class="time-card" onclick="allocate('Sprint drills or stretching', '15–20 min')">
-        <div class="time-card-left">
-          <div class="time-card-name">Sprint drills / stretch</div>
-          <div class="time-card-duration">15–20 min · body</div>
-        </div>
-        <div class="time-card-go">→</div>
+
+  <!-- MORE -->
+  <div class="screen" id="s-more">
+    <div class="hdr"><div class="hdr-lbl">More</div></div>
+    <div class="more-list">
+      <button class="card" onclick="go('bath')"><div class="card-l"><div class="dot" style="background:var(--blu)"></div><div><div class="card-title">Bathroom timer</div><div class="card-sub">8 min countdown</div></div></div><div class="arr">›</div></button>
+      <button class="card" onclick="go('time')"><div class="card-l"><div class="dot" style="background:var(--warm)"></div><div><div class="card-title">Use this time</div><div class="card-sub">Put the energy somewhere</div></div></div><div class="arr">›</div></button>
+      <button class="card" onclick="go('log')"><div class="card-l"><div class="dot" style="background:var(--mut)"></div><div><div class="card-title">Urge log</div><div class="card-sub">Track patterns over time</div></div></div><div class="arr">›</div></button>
+    </div>
+  </div>
+
+  <!-- BATHROOM -->
+  <div class="screen" id="s-bath">
+    <div class="hdr"><div class="hdr-lbl">Bathroom</div></div>
+    <div class="bath-wrap">
+      <div class="bath-title">8 minute timer</div>
+      <div class="bath-sub">In, out, done. Start it the moment you enter. Phone stays outside.</div>
+      <div class="bath-ring">
+        <svg viewBox="0 0 200 200"><circle class="bath-ring-bg" cx="100" cy="100" r="90"/><circle class="bath-ring-prog" id="bath-prog" cx="100" cy="100" r="90"/></svg>
+        <div class="bath-ring-inner"><div class="bath-time" id="bath-time">8:00</div><div class="bath-time-lbl">remaining</div></div>
       </div>
-      <div class="time-card" onclick="allocate('Write something — anything. Journal, lyrics, a story.', '10–30 min')">
-        <div class="time-card-left">
-          <div class="time-card-name">Write something</div>
-          <div class="time-card-duration">10–30 min · creative</div>
-        </div>
-        <div class="time-card-go">→</div>
+      <div class="bath-controls">
+        <button class="bath-btn" id="bath-btn" onclick="toggleBath()">Start</button>
+        <button class="bath-btn sec" onclick="resetBath()">Reset</button>
       </div>
-      <div class="time-card" onclick="allocate('Practice music. Pick up an instrument. Hum something.', '15 min')">
-        <div class="time-card-left">
-          <div class="time-card-name">Music / practice</div>
-          <div class="time-card-duration">15 min · creative</div>
-        </div>
-        <div class="time-card-go">→</div>
+      <div class="bath-warning" id="bath-warning">⚠ Time's up — step out now.</div>
+    </div>
+  </div>
+
+  <!-- TIME -->
+  <div class="screen" id="s-time">
+    <div class="hdr"><div class="hdr-lbl">Use this time</div></div>
+    <div class="time-inner">
+      <div class="time-q">You have energy.<br>Where does it go?</div>
+      <div class="time-tasks">
+        <button class="tcard" onclick="showToast('Committed: Sprint drills or stretching.')"><div><div class="tcard-name">Sprint drills / stretch</div><div class="tcard-dur">15–20 min · body</div></div><div class="tcard-go">→</div></button>
+        <button class="tcard" onclick="showToast('Committed: Write — journal, lyrics, a story.')"><div><div class="tcard-name">Write something</div><div class="tcard-dur">10–30 min · creative</div></div><div class="tcard-go">→</div></button>
+        <button class="tcard" onclick="showToast('Committed: Pick up an instrument. Make sound.')"><div><div class="tcard-name">Music / practice</div><div class="tcard-dur">15 min · creative</div></div><div class="tcard-go">→</div></button>
+        <button class="tcard" onclick="showToast('Committed: Review notes. Use the energy.')"><div><div class="tcard-name">Study block</div><div class="tcard-dur">20–40 min · mind</div></div><div class="tcard-go">→</div></button>
+        <button class="tcard" onclick="showToast('Committed: Call or text someone you care about.')"><div><div class="tcard-name">Reach out to someone</div><div class="tcard-dur">10 min · connection</div></div><div class="tcard-go">→</div></button>
       </div>
-      <div class="time-card" onclick="allocate('Study or review notes. Use the energy.', '20–40 min')">
-        <div class="time-card-left">
-          <div class="time-card-name">Study block</div>
-          <div class="time-card-duration">20–40 min · mind</div>
+      <div class="cust-lbl">or write your own</div>
+      <input class="cust-in" id="cust-in" placeholder="What matters to you right now?" maxlength="60">
+      <button class="cust-btn" onclick="commitCustom()">Commit to this →</button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="screen" id="s-log">
+    <div class="hdr"><div class="hdr-lbl">Urge Log</div></div>
+    <div class="log-inner">
+      <div class="log-title">What happened?</div>
+      <div class="log-sub">Log every urge — resisted or not. Patterns emerge over time.</div>
+      <div class="log-form">
+        <div class="log-row">
+          <div class="log-row-lbl">Trigger</div>
+          <div class="log-pills" id="log-trigger-pills"></div>
         </div>
-        <div class="time-card-go">→</div>
+        <div class="log-row">
+          <div class="log-row-lbl">Outcome</div>
+          <div class="log-outcome-pills">
+            <button class="log-outcome-pill" id="op-resisted" onclick="setOutcome('resisted')">resisted ✓</button>
+            <button class="log-outcome-pill" id="op-slipped" onclick="setOutcome('slipped')">slipped ✗</button>
+          </div>
+        </div>
+        <div class="log-row">
+          <div class="log-row-lbl">Note (optional)</div>
+          <textarea class="log-textarea" id="log-note" rows="3" placeholder="What were you feeling? What time? What helped?"></textarea>
+        </div>
+        <button class="log-save" onclick="saveLog()">Save entry →</button>
       </div>
-      <div class="time-card" onclick="allocate('Call or text someone you care about.', '10 min')">
-        <div class="time-card-left">
-          <div class="time-card-name">Reach out to someone</div>
-          <div class="time-card-duration">10 min · connection</div>
-        </div>
-        <div class="time-card-go">→</div>
+      <div id="log-patterns-wrap"></div>
+      <div class="log-entries" id="log-entries"></div>
+    </div>
+  </div>
+
+  <!-- DETAIL PANEL -->
+  <div id="detail">
+    <button class="d-close" onclick="closeDetail()">×</button>
+    <div class="d-title" id="d-title"></div>
+    <div id="d-steps"></div>
+    <button class="d-delete" id="d-delete" style="display:none" onclick="deleteCurrentTrigger()">Remove this trigger</button>
+  </div>
+
+  <!-- ADD TRIGGER PANEL -->
+  <div id="add-trigger-panel">
+    <div class="atp-box">
+      <div class="atp-title">New trigger</div>
+      <div class="atp-sub">Name it and describe when it happens. It'll appear in your trigger list.</div>
+      <input class="atp-in" id="atp-name" placeholder="Trigger name (e.g. after school)" maxlength="40">
+      <textarea class="atp-note" id="atp-desc" rows="2" placeholder="When does this happen? (optional)"></textarea>
+      <div class="atp-btns">
+        <button class="atp-save" onclick="saveCustomTrigger()">Add trigger →</button>
+        <button class="atp-cancel" onclick="closeAddTrigger()">Cancel</button>
       </div>
     </div>
-    <div class="time-custom-label">or write your own</div>
-    <input class="time-custom-input" id="customTask" placeholder="What matters to you right now?" maxlength="60">
-    <button class="time-custom-btn" onclick="allocateCustom()">Commit to this →</button>
   </div>
-</div>
 
-<!-- NAV -->
-<nav>
-  <button class="nav-btn active" onclick="goTo('home')" id="nav-home">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-    Home
-  </button>
-  <button class="nav-btn" onclick="goTo('urge')" id="nav-urge">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-    Urge
-  </button>
-  <button class="nav-btn" onclick="goTo('breathe')" id="nav-breathe">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a10 10 0 000 20 10 10 0 000-20zm0 0v10m0 0l4-4m-4 4l-4-4"/></svg>
-    Breathe
-  </button>
-  <button class="nav-btn" onclick="goTo('wake')" id="nav-wake">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-    Wake
-  </button>
-  <button class="nav-btn" onclick="goTo('time')" id="nav-time">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    Time
-  </button>
-</nav>
+  <!-- MODAL -->
+  <div id="modal">
+    <div class="modal-box">
+      <div class="modal-t">Start over?</div>
+      <div class="modal-s">This will reset your streak to zero. It takes courage to be honest. You can begin again — right now.</div>
+      <div class="modal-btns">
+        <button class="modal-y" onclick="resetStreak()">Reset streak</button>
+        <button class="modal-n" onclick="document.getElementById('modal').classList.remove('on')">Keep going</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <!-- 4-TAB NAV -->
+  <nav>
+    <button class="nb on" id="nb-home" onclick="go('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home
+    </button>
+    <button class="nb" id="nb-interrupt" onclick="go('interrupt')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Interrupt
+    </button>
+    <button class="nb" id="nb-breathe" onclick="go('breathe')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>Breathe
+    </button>
+    <button class="nb" id="nb-more" onclick="go('more')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></svg>More
+    </button>
+  </nav>
+</div>
 
 <script>
-// ===== STATE =====
-let startDate = localStorage.getItem('ground_start') ? new Date(localStorage.getItem('ground_start')) : null;
+// ── STREAK ──
+var startDate;
+try{startDate=localStorage.getItem('g_start');}catch(e){startDate=null;}
+if(!startDate){startDate=new Date().toISOString();try{localStorage.setItem('g_start',startDate);}catch(e){}}
+function calcStreak(){
+  if(!startDate)return 0;
+  var start=new Date(startDate);
+  var startMidnight=new Date(start.getFullYear(),start.getMonth(),start.getDate());
+  var nowMidnight=new Date();nowMidnight.setHours(0,0,0,0);
+  return Math.max(0,Math.round((nowMidnight-startMidnight)/86400000));
+}
+function renderStreak(){
+  document.getElementById('streak-num').textContent=calcStreak();
+  if(startDate){var d=new Date(startDate);document.getElementById('streak-since').textContent='since '+d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+}
+renderStreak();
+function resetStreak(){startDate=new Date().toISOString();try{localStorage.setItem('g_start',startDate);}catch(e){}renderStreak();document.getElementById('modal').classList.remove('on');showToast('Streak reset. Day one begins now.');}
 
-function getStreak() {
-  if (!startDate) return 0;
-  const now = new Date();
-  const diff = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
-  return Math.max(0, diff);
+// ── NAV ──
+var NAV_IDS=['home','interrupt','breathe','more'];
+function go(id){
+  if(bRunning)stopBreathe();
+  if(id!=='bath')stopBath();
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('s-'+id).classList.add('on');
+  var nbId='nb-'+id;
+  // for sub-screens highlight parent nav
+  if(id==='bath'||id==='time'||id==='log')nbId='nb-more';
+  if(document.getElementById(nbId))document.getElementById(nbId).classList.add('on');
+  closeDetail();
+  if(id==='log')renderLog();
+  if(id==='interrupt')renderCustomTriggers();
+  if(id==='log')renderLogTriggerPills();
 }
 
-function updateStreak() {
-  const days = getStreak();
-  document.getElementById('streakDays').textContent = days;
-  if (startDate) {
-    const opts = { month: 'short', day: 'numeric' };
-    document.getElementById('streakSince').textContent = 'since ' + startDate.toLocaleDateString('en-US', opts);
-  }
-  if (!startDate) {
-    localStorage.setItem('ground_start', new Date().toISOString());
-    startDate = new Date(localStorage.getItem('ground_start'));
-    updateStreak();
-  }
-}
+// ── TOAST ──
+var toastTimer;
+function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('on');},3000);}
 
-updateStreak();
-
-// ===== NAV =====
-function goTo(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
-  document.getElementById('nav-' + id).classList.add('active');
-  if (breatheRunning && id !== 'breathe') stopBreathe();
-}
-
-// ===== RESET =====
-function openModal() { document.getElementById('resetModal').classList.add('open'); }
-function closeModal() { document.getElementById('resetModal').classList.remove('open'); }
-function confirmReset() {
-  localStorage.setItem('ground_start', new Date().toISOString());
-  startDate = new Date(localStorage.getItem('ground_start'));
-  updateStreak();
-  closeModal();
-  showToast('Streak reset. Day one begins now.');
-}
-
-// ===== TOAST =====
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// ===== DETAIL PANEL =====
-const strategies = {
-  routine: {
-    title: 'Routine / Habit',
-    steps: [
-      { label: 'Recognize it', text: 'This urge isn\'t emotional — it\'s just a script your body runs at this time, in this place. That\'s actually good news. Scripts can be rewritten.' },
-      { label: 'Break the context', text: 'Stand up. Go to a different room. The urge is tied to where you are right now. Physically move and it loses 60% of its power.' },
-      { label: 'Insert something', text: 'The routine slot needs to be filled, not just blocked. Do 10 push-ups, make a drink, put music on. Give the moment a new identity.' },
-      { label: 'Ride it out', text: 'Urges peak at about 3–5 minutes then fade. You don\'t need to fight it — just delay it by doing literally anything else for 5 minutes.' },
-      { label: 'Rewrite tomorrow', text: 'After it passes, note what time and context it happened. Tomorrow, schedule something there intentionally before the slot opens.' }
-    ]
-  },
-  boredom: {
-    title: 'Boredom',
-    steps: [
-      { label: 'Name it', text: 'You\'re not actually attracted to this right now — you\'re under-stimulated. The brain reaches for the highest-dopamine thing it knows. That\'s not desire, that\'s default.' },
-      { label: 'Raise stimulation fast', text: 'Put on music you love, start a voice memo and talk about something, send a message to someone. Anything that pulls your attention outward.' },
-      { label: 'Move your body', text: 'Boredom lives in stillness. 20 jumping jacks or a brief walk completely shifts your neurochemistry within 90 seconds.' },
-      { label: 'Create something', text: 'Write a lyric, a one-sentence story, a hot take. Production is the antidote to passive boredom. Make anything.' }
-    ]
-  },
-  stress: {
-    title: 'Stress / Anxiety',
-    steps: [
-      { label: 'Don\'t numb it', text: 'This urge is asking you to disappear for a moment. But you\'ll feel worse after. The stress will still be there — plus shame.' },
-      { label: 'Name the stressor', text: 'Say it out loud or write it: "I am stressed about ___." Naming it shifts you from the emotional brain to the thinking brain.' },
-      { label: 'Breathe first', text: 'Go to the Breathe section. 4-7-8 breathing activates your parasympathetic system and directly lowers cortisol. Do two rounds.' },
-      { label: 'Take one small action', text: 'What\'s one tiny thing you can do about the stressor right now? Even a 2-minute step gives your brain evidence that you\'re in control.' }
-    ]
-  },
-  phone: {
-    title: 'Phone / Screen Spiral',
-    steps: [
-      { label: 'Put it down', text: 'Not on the bed. Not face-down. Across the room or in another room. The phone is the environment; change the environment.' },
-      { label: 'Recognize the drift', text: 'You didn\'t make a choice — you drifted here. That means you can drift back out just as easily. No guilt required.' },
-      { label: 'Do the opposite', text: 'Go analog immediately. A book, a notebook, stepping outside. Anything that doesn\'t have a screen.' },
-      { label: 'Set a re-entry rule', text: 'Before picking the phone back up, do one physical thing: 10 push-ups, wash your face, drink water. Create a gate.' }
-    ]
-  },
-  night: {
-    title: 'Late Night / Tired',
-    steps: [
-      { label: 'Low willpower is real', text: 'At night your prefrontal cortex is depleted. This is the hardest time to resist anything. Don\'t fight it with willpower — fight it with environment.' },
-      { label: 'Phone in another room', text: 'Right now, put it across the room or outside the door before you try to sleep. Remove the instrument.' },
-      { label: 'Body as ally', text: 'You\'re tired. That\'s actually your ally — lean into sleep. Eyes closed, body still. The urge fades quickly once you\'re genuinely resting.' },
-      { label: 'Sleep is the goal', text: 'You\'re not failing a test of willpower. You\'re just trying to sleep. Focus on that. One breath at a time.' }
-    ]
-  },
-  alone: {
-    title: 'Alone in Room',
-    steps: [
-      { label: 'Solitude isn\'t the enemy', text: 'Being alone is fine. The problem is unstructured alone time with no focus. Give the solitude a shape.' },
-      { label: 'Open the door', text: 'Literally. An open door changes the energy of a room and removes the sealed-off feeling that enables the habit.' },
-      { label: 'Invite stimulus in', text: 'Play music or a podcast out loud. Put something on in the background. Solitude + silence is the highest-risk combo.' },
-      { label: 'Reach out', text: 'Text someone — doesn\'t have to be deep. Just connect with the world outside your four walls. The urge is partly loneliness.' }
-    ]
-  }
+// ── BUILT-IN STRATEGIES ──
+var builtInStrategies={
+  routine:{title:'Routine / Habit',steps:[{l:'Recognize it',t:"This urge isn't emotional — it's just a script your body runs at this time. Scripts can be rewritten."},{l:'Break the context',t:"Stand up. Go to a different room. Physically move and it loses 60% of its power."},{l:'Insert something',t:"The slot needs filling, not just blocking. 10 push-ups, a drink, music on."},{l:'Ride it out',t:"Urges peak at 3-5 minutes then fade. Delay by doing anything else."},{l:'Rewrite tomorrow',t:"After it passes, note when it happened. Tomorrow, schedule something there."}]},
+  boredom:{title:'Boredom',steps:[{l:'Name it',t:"You're under-stimulated. The brain defaults to its highest-dopamine habit. That's not desire, that's default."},{l:'Raise stimulation fast',t:"Music you love, a voice memo, a message. Anything outward."},{l:'Move your body',t:"20 jumping jacks shifts your neurochemistry in 90 seconds."},{l:'Create something',t:"Write a lyric, a sentence, a thought. Production beats passive urge."}]},
+  stress:{title:'Stress / Anxiety',steps:[{l:"Don't numb it",t:"You'll feel worse after. The stress will still be there — plus shame."},{l:'Name the stressor',t:'Say it: "I am stressed about ___." That alone shifts you to the thinking brain.'},{l:'Breathe first',t:"4-7-8 breathing directly lowers cortisol. Two rounds in the Breathe tab."},{l:'Take one small action',t:"Even a 2-minute step gives your brain evidence that you're in control."}]},
+  phone:{title:'Phone / Screen Spiral',steps:[{l:'Put it down',t:"Across the room. The phone is the environment; change the environment."},{l:'Recognize the drift',t:"You didn't make a choice — you drifted. You can drift back out."},{l:'Do the opposite',t:"Go analog immediately. Book, notebook, outside."},{l:'Set a re-entry rule',t:"Before picking it up again: push-ups, wash your face, drink water."}]},
+  bathroom:{title:'Bathroom',steps:[{l:'Use the timer',t:"Start the Bathroom Timer the moment you enter. 8 minutes. In and out."},{l:'Phone stays outside',t:"Leave it outside entirely. It is the primary enabler in this context."},{l:'Notice the pattern',t:"This urge is almost always routine + privacy + phone. Remove one and the loop breaks."},{l:'Shower cold',t:"End with 30 seconds of cold water. It snaps the dopamine loop immediately."},{l:'Log it',t:"Whether resisted or not, log it. Over time you'll see exactly when and why it happens."}]},
+  night:{title:'Late Night / Tired',steps:[{l:'Low willpower is real',t:"At night your prefrontal cortex is depleted. Fight with environment, not willpower."},{l:'Phone in another room',t:"Put it across the room before you try to sleep."},{l:'Body as ally',t:"You're tired. Lean into sleep. The urge fades quickly once you're still."},{l:'Sleep is the goal',t:"You're not failing a willpower test. Just trying to sleep. One breath at a time."}]},
+  alone:{title:'Alone in Room',steps:[{l:"Solitude isn't the enemy",t:"The problem is unstructured alone time. Give it a shape."},{l:'Open the door',t:"Literally. An open door removes the sealed-off feeling that enables the habit."},{l:'Invite stimulus in',t:"Music or a podcast out loud. Solitude + silence is the highest-risk combo."},{l:'Reach out',t:"Text someone — doesn't have to be deep. Connect with the world outside your room."}]}
 };
 
-function openDetail(key, label) {
-  const s = strategies[key];
-  document.getElementById('detailTitle').textContent = s.title;
-  const steps = s.steps.map(step => `
-    <div class="detail-step">
-      <div class="step-label">${step.label}</div>
-      <div class="step-text">${step.text}</div>
-    </div>
-  `).join('');
-  document.getElementById('detailSteps').innerHTML = steps;
-  document.getElementById('detailPanel').classList.add('open');
-}
-function closeDetail() { document.getElementById('detailPanel').classList.remove('open'); }
+// ── CUSTOM TRIGGERS ──
+var currentDetailKey=null;
+function getCustomTriggers(){try{return JSON.parse(localStorage.getItem('g_triggers')||'[]');}catch(e){return[];}}
+function saveCustomTriggers(arr){try{localStorage.setItem('g_triggers',JSON.stringify(arr));}catch(e){}}
 
-// ===== BREATHE =====
-const breathePatterns = [
-  { inhale: 4, hold: 7, exhale: 8, label: 'Inhale 4 · Hold 7 · Exhale 8', desc: 'Activates your parasympathetic system.\nReduces urge intensity within 2 minutes.' },
-  { inhale: 4, hold: 4, exhale: 4, label: 'Inhale 4 · Hold 4 · Exhale 4', desc: 'Box breathing. Used by Navy SEALs.\nCalms and centers rapidly.' },
-  { inhale: 4, hold: 0, exhale: 6, label: 'Inhale 4 · Exhale 6', desc: 'Simple calming breath.\nPerfect for high-intensity moments.' }
-];
-let currentPattern = 0;
-let breatheRunning = false;
-let breatheTimeout = null;
-let breathePhase = 'inhale';
-let breatheCounter = 0;
-
-function selectPattern(i, el) {
-  currentPattern = i;
-  document.querySelectorAll('.pattern-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  const p = breathePatterns[i];
-  document.getElementById('breatheInstruction').innerHTML = p.label + '<br>' + p.desc.replace('\n', '<br>');
-  if (breatheRunning) stopBreathe();
+function renderCustomTriggers(){
+  var customs=getCustomTriggers();
+  var container=document.getElementById('urge-items');
+  // remove old custom ones
+  var old=container.querySelectorAll('.uitem-custom');
+  old.forEach(function(el){el.remove();});
+  // insert before the add button's parent
+  customs.forEach(function(t){
+    var btn=document.createElement('button');
+    btn.className='uitem uitem-custom';
+    btn.innerHTML='<div class="uitem-t">'+t.name+'</div>'+(t.desc?'<div class="uitem-b">'+t.desc+'</div>':'');
+    btn.onclick=function(){openCustomDetail(t.id);};
+    container.appendChild(btn);
+  });
 }
 
-function toggleBreathe() {
-  if (breatheRunning) { stopBreathe(); return; }
-  breatheRunning = true;
-  document.getElementById('breatheBtn').textContent = 'Stop';
-  runPhase('inhale');
+function openDetail(key){
+  currentDetailKey=key;
+  var s=builtInStrategies[key];
+  document.getElementById('d-title').textContent=s.title;
+  document.getElementById('d-steps').innerHTML=s.steps.map(function(st){return '<div class="d-step"><div class="d-step-lbl">'+st.l+'</div><div class="d-step-txt">'+st.t+'</div></div>';}).join('');
+  document.getElementById('d-delete').style.display='none';
+  document.getElementById('detail').classList.add('on');
 }
 
-function runPhase(phase) {
-  if (!breatheRunning) return;
-  const p = breathePatterns[currentPattern];
-  const ring = document.getElementById('breatheRing');
-  const phaseEl = document.getElementById('breathePhase');
-  const countEl = document.getElementById('breatheCount');
-
-  ring.className = 'breathe-ring animating';
-  breathePhase = phase;
-  let duration = phase === 'inhale' ? p.inhale : phase === 'hold' ? p.hold : p.exhale;
-
-  if (phase === 'hold' && p.hold === 0) { runPhase('exhale'); return; }
-
-  ring.classList.add(phase);
-  phaseEl.textContent = phase === 'inhale' ? 'inhale' : phase === 'hold' ? 'hold' : 'exhale';
-  
-  let count = duration;
-  countEl.textContent = count;
-  const interval = setInterval(() => {
-    count--;
-    countEl.textContent = count;
-    if (count <= 0) {
-      clearInterval(interval);
-      if (!breatheRunning) return;
-      if (phase === 'inhale') runPhase('hold');
-      else if (phase === 'hold') runPhase('exhale');
-      else runPhase('inhale');
-    }
-  }, 1000);
+function openCustomDetail(id){
+  currentDetailKey='custom:'+id;
+  var customs=getCustomTriggers();
+  var t=customs.find(function(c){return c.id===id;});
+  if(!t)return;
+  document.getElementById('d-title').textContent=t.name;
+  document.getElementById('d-steps').innerHTML='<div class="d-step"><div class="d-step-lbl">Your note</div><div class="d-step-txt">'+(t.desc||'No description added.')+'</div></div><div class="d-step"><div class="d-step-lbl">What to do</div><div class="d-step-txt">You added this trigger because you recognized it in yourself. That awareness is already half the work. Use the immediate actions above, or tap Breathe to ride it out.</div></div>';
+  document.getElementById('d-delete').style.display='block';
+  document.getElementById('detail').classList.add('on');
 }
 
-function stopBreathe() {
-  breatheRunning = false;
-  clearTimeout(breatheTimeout);
-  document.getElementById('breatheBtn').textContent = 'Begin';
-  document.getElementById('breatheRing').className = 'breathe-ring';
-  document.getElementById('breathePhase').textContent = 'ready';
-  document.getElementById('breatheCount').textContent = '—';
+function deleteCurrentTrigger(){
+  if(!currentDetailKey||!currentDetailKey.startsWith('custom:'))return;
+  var id=parseInt(currentDetailKey.split(':')[1]);
+  var customs=getCustomTriggers().filter(function(c){return c.id!==id;});
+  saveCustomTriggers(customs);
+  closeDetail();
+  renderCustomTriggers();
+  renderLogTriggerPills();
+  showToast('Trigger removed.');
 }
 
-// ===== WAKE =====
-function wakeAction(msg) {
-  showToast(msg);
+function closeDetail(){document.getElementById('detail').classList.remove('on');}
+
+function openAddTrigger(){document.getElementById('atp-name').value='';document.getElementById('atp-desc').value='';document.getElementById('add-trigger-panel').classList.add('on');setTimeout(function(){document.getElementById('atp-name').focus();},300);}
+function closeAddTrigger(){document.getElementById('add-trigger-panel').classList.remove('on');}
+function saveCustomTrigger(){
+  var name=document.getElementById('atp-name').value.trim();
+  if(!name){showToast('Give it a name first.');return;}
+  var desc=document.getElementById('atp-desc').value.trim();
+  var customs=getCustomTriggers();
+  customs.push({id:Date.now(),name:name,desc:desc});
+  saveCustomTriggers(customs);
+  closeAddTrigger();
+  renderCustomTriggers();
+  renderLogTriggerPills();
+  showToast('Trigger added.');
 }
 
-// ===== TIME =====
-function allocate(task, duration) {
-  showToast('Committed: ' + task.substring(0, 40) + (task.length > 40 ? '...' : ''));
+// ── BREATHE ──
+var bPats=[{inhale:4,hold:7,exhale:8,desc:'Inhale 4 · Hold 7 · Exhale 8<br>Activates your parasympathetic system.<br>Reduces urge intensity within 2 minutes.'},{inhale:4,hold:4,exhale:4,desc:'Inhale 4 · Hold 4 · Exhale 4<br>Box breathing. Calms and centers rapidly.'},{inhale:4,hold:0,exhale:6,desc:'Inhale 4 · Exhale 6<br>Simple calming breath. Perfect for high-intensity moments.'}];
+var bPat=0,bRunning=false,bIval=null;
+function selPat(i,el){bPat=i;document.querySelectorAll('.b-pill').forEach(function(p){p.classList.remove('on');});el.classList.add('on');document.getElementById('b-desc').innerHTML=bPats[i].desc;if(bRunning)stopBreathe();}
+function toggleBreathe(){bRunning?stopBreathe():startBreathe();}
+function startBreathe(){bRunning=true;document.getElementById('b-btn').textContent='Stop';runPhase('inhale');}
+function runPhase(phase){if(!bRunning)return;var p=bPats[bPat];if(phase==='hold'&&p.hold===0){runPhase('exhale');return;}var dur=phase==='inhale'?p.inhale:phase==='hold'?p.hold:p.exhale;var ring=document.getElementById('b-ring');ring.className='b-ring animating';document.getElementById('b-phase').textContent=phase;if(phase==='inhale'){ring.style.transform='scale(1)';setTimeout(function(){ring.style.transition='transform '+dur+'s ease-in-out,border-color .5s';ring.style.transform='scale(1.35)';ring.style.borderColor='var(--grn)';},50);}else if(phase==='exhale'){ring.style.transition='transform '+dur+'s ease-in-out,border-color .5s';ring.style.transform='scale(1)';ring.style.borderColor='var(--bor)';}var count=dur;document.getElementById('b-count').textContent=count;clearInterval(bIval);bIval=setInterval(function(){count--;document.getElementById('b-count').textContent=count;if(count<=0){clearInterval(bIval);if(!bRunning)return;var next=phase==='inhale'?'hold':phase==='hold'?'exhale':'inhale';runPhase(next);}},1000);}
+function stopBreathe(){bRunning=false;clearInterval(bIval);document.getElementById('b-btn').textContent='Begin';var ring=document.getElementById('b-ring');ring.className='b-ring';ring.style.transform='scale(1)';ring.style.borderColor='var(--bor)';ring.style.transition='';document.getElementById('b-phase').textContent='ready';document.getElementById('b-count').textContent='—';}
+
+// ── BATHROOM ──
+var BATH_DURATION=480,bathRemaining=480,bathRunning=false,bathIval=null,CIRCUMFERENCE=565.48;
+function updateBathDisplay(){var m=Math.floor(bathRemaining/60),s=bathRemaining%60;document.getElementById('bath-time').textContent=m+':'+(s<10?'0':'')+s;var offset=CIRCUMFERENCE*(1-(bathRemaining/BATH_DURATION));document.getElementById('bath-prog').style.strokeDashoffset=offset;var warn=document.getElementById('bath-warning');if(bathRemaining<=60&&bathRunning){warn.classList.add('on');document.getElementById('bath-prog').style.stroke='var(--red)';}else{warn.classList.remove('on');document.getElementById('bath-prog').style.stroke='var(--acc)';}}
+function toggleBath(){if(bathRunning){bathRunning=false;clearInterval(bathIval);document.getElementById('bath-btn').textContent='Resume';}else{if(bathRemaining===0)resetBath();bathRunning=true;document.getElementById('bath-btn').textContent='Pause';bathIval=setInterval(function(){bathRemaining--;updateBathDisplay();if(bathRemaining<=0){clearInterval(bathIval);bathRunning=false;document.getElementById('bath-btn').textContent='Start';showToast('Time is up. Step out now.');}},1000);}}
+function resetBath(){bathRunning=false;clearInterval(bathIval);bathRemaining=BATH_DURATION;document.getElementById('bath-btn').textContent='Start';updateBathDisplay();}
+function stopBath(){if(bathRunning){bathRunning=false;clearInterval(bathIval);}}
+updateBathDisplay();
+
+// ── TIME ──
+function commitCustom(){var val=document.getElementById('cust-in').value.trim();if(!val){showToast('Write something first.');return;}showToast('Committed: '+val.substring(0,45));document.getElementById('cust-in').value='';}
+
+// ── LOG ──
+var logTriggers=[],logOutcome=null;
+function getAllTriggerNames(){
+  var builtIn=['routine','boredom','stress','phone','bathroom','late night','alone'];
+  var customs=getCustomTriggers().map(function(t){return t.name;});
+  return builtIn.concat(customs);
 }
-function allocateCustom() {
-  const val = document.getElementById('customTask').value.trim();
-  if (!val) { showToast('Write something first.'); return; }
-  showToast('Committed: ' + val);
-  document.getElementById('customTask').value = '';
+function renderLogTriggerPills(){
+  var names=getAllTriggerNames();
+  var container=document.getElementById('log-trigger-pills');
+  if(!container)return;
+  container.innerHTML=names.map(function(n){
+    var isOn=logTriggers.indexOf(n)>-1;
+    return '<button class="log-pill'+(isOn?' on':'')+'" onclick="toggleLogPill(this,\''+n+'\')">'+n+'</button>';
+  }).join('');
+}
+function toggleLogPill(el,val){var idx=logTriggers.indexOf(val);if(idx>-1){logTriggers.splice(idx,1);el.classList.remove('on');}else{logTriggers.push(val);el.classList.add('on');}}
+function setOutcome(val){logOutcome=val;document.getElementById('op-resisted').className='log-outcome-pill'+(val==='resisted'?' on-g':'');document.getElementById('op-slipped').className='log-outcome-pill'+(val==='slipped'?' on-r':'');}
+function saveLog(){if(!logOutcome){showToast('Select an outcome first.');return;}var entries=getLogEntries();var entry={id:Date.now(),date:new Date().toISOString(),triggers:logTriggers.slice(),outcome:logOutcome,note:document.getElementById('log-note').value.trim()};entries.unshift(entry);try{localStorage.setItem('g_log',JSON.stringify(entries));}catch(e){}logTriggers=[];logOutcome=null;document.getElementById('op-resisted').className='log-outcome-pill';document.getElementById('op-slipped').className='log-outcome-pill';document.getElementById('log-note').value='';renderLogTriggerPills();showToast('Entry saved.');renderLog();}
+function getLogEntries(){try{return JSON.parse(localStorage.getItem('g_log')||'[]');}catch(e){return[];}}
+function deleteEntry(id){var entries=getLogEntries().filter(function(e){return e.id!==id;});try{localStorage.setItem('g_log',JSON.stringify(entries));}catch(e){}renderLog();}
+function renderLog(){
+  renderLogTriggerPills();
+  var entries=getLogEntries();
+  var pw=document.getElementById('log-patterns-wrap');
+  if(entries.length>=3){var counts={};entries.forEach(function(e){e.triggers.forEach(function(t){counts[t]=(counts[t]||0)+1;});});var sorted=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a];}).slice(0,4);var max=sorted.length?counts[sorted[0]]:1;pw.innerHTML='<div class="log-patterns"><div class="log-patterns-title">Top patterns</div>'+sorted.map(function(t){var pct=Math.round(counts[t]/max*100);return '<div><div class="log-pattern-row"><span>'+t+'</span><span>'+counts[t]+'x</span></div><div class="log-pattern-bar" style="width:'+pct+'%"></div></div>';}).join('')+'</div>';}else{pw.innerHTML='';}
+  var el=document.getElementById('log-entries');
+  if(!entries.length){el.innerHTML='<div class="log-empty">No entries yet.<br>Log your first urge above.</div>';return;}
+  el.innerHTML=entries.map(function(e){var d=new Date(e.date);var dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});var tags=e.triggers.map(function(t){return '<span class="log-entry-tag">'+t+'</span>';}).join('');var outcomeClass=e.outcome==='resisted'?'g':'r';var outcomeLabel=e.outcome==='resisted'?'resisted':'slipped';return '<div class="log-entry"><button class="log-entry-del" onclick="deleteEntry('+e.id+')">×</button><div class="log-entry-top"><span class="log-entry-date">'+dateStr+'</span><span class="log-entry-outcome '+outcomeClass+'">'+outcomeLabel+'</span></div>'+(tags?'<div class="log-entry-triggers">'+tags+'</div>':'')+(e.note?'<div class="log-entry-note">'+e.note+'</div>':'')+'</div>';}).join('');
+}
+
+// ── HAPTICS ──
+function haptic(style){
+  // iOS 13+ Haptic Engine via AudioContext impulse trick
+  if(window.navigator&&window.navigator.vibrate){navigator.vibrate(style==='light'?10:style==='medium'?20:30);return;}
+  // iOS fallback: silent audio pulse triggers taptic engine
+  if(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function')return;
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    var buf=ctx.createBuffer(1,ctx.sampleRate*0.01,ctx.sampleRate);
+    var src=ctx.createBufferSource();src.buffer=buf;
+    src.connect(ctx.destination);src.start();
+    setTimeout(function(){ctx.close();},100);
+  }catch(e){}
+}
+// attach haptic to every button tap
+document.addEventListener('touchstart',function(e){
+  var t=e.target;
+  if(t.tagName==='BUTTON'||t.closest('button')){haptic('light');}
+},true);
+
+// ── SOUND (works through silent switch via AudioContext unlock on user gesture) ──
+var audioCtx=null,soundOn=false,soundNodes=[],toneIdx=0,toneTimer=null;
+var TONES=[220,277.18,329.63,369.99];
+
+function unlockAudio(){
+  // Play a silent buffer immediately on user tap to unlock AudioContext on iOS
+  if(!audioCtx)return;
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  var buf=audioCtx.createBuffer(1,1,22050);
+  var src=audioCtx.createBufferSource();
+  src.buffer=buf;src.connect(audioCtx.destination);src.start(0);
+}
+
+function initAudio(){
+  if(audioCtx)return;
+  try{
+    audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    // Set output to 'playback' category — this is what bypasses silent switch on iOS
+    if(audioCtx.outputLatencyHint!==undefined)audioCtx.outputLatencyHint='playback';
+  }catch(e){}
+}
+
+function playTone(freq,delay){
+  if(!audioCtx||!soundOn)return;
+  var osc=audioCtx.createOscillator();
+  var gain=audioCtx.createGain();
+  osc.type='sine';
+  osc.frequency.value=freq;
+  gain.gain.setValueAtTime(0,audioCtx.currentTime+delay);
+  gain.gain.linearRampToValueAtTime(0.06,audioCtx.currentTime+delay+1.0);
+  gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+delay+4.0);
+  osc.connect(gain);gain.connect(audioCtx.destination);
+  osc.start(audioCtx.currentTime+delay);
+  osc.stop(audioCtx.currentTime+delay+4.5);
+  soundNodes.push(osc);
+}
+
+function scheduleTones(){
+  if(!soundOn)return;
+  var freq=TONES[toneIdx%TONES.length];
+  playTone(freq,0);
+  playTone(freq*1.5,0.08);
+  toneIdx++;
+  toneTimer=setTimeout(scheduleTones,7000);
+}
+
+function toggleSound(){
+  initAudio();
+  unlockAudio();
+  soundOn=!soundOn;
+  var btn=document.getElementById('sound-btn');
+  var lbl=document.getElementById('sound-lbl');
+  if(soundOn){
+    btn.classList.add('on');lbl.textContent='sound on';
+    if(audioCtx.state==='suspended')audioCtx.resume();
+    scheduleTones();
+  }else{
+    btn.classList.remove('on');lbl.textContent='sound off';
+    clearTimeout(toneTimer);
+    soundNodes.forEach(function(n){try{n.stop();}catch(e){}});
+    soundNodes=[];
+  }
 }
 </script>
 </body>
